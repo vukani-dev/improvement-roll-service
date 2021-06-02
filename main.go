@@ -2,15 +2,23 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 )
 
 func main() {
   app := fiber.New()
+	app.Use(logger.New())
+	
+  // Load .env
+  err := godotenv.Load()
 
-  app.Post("/", func(c *fiber.Ctx) error {
-    return c.SendString("Hello, Hero!")
-  })
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 
   app.Get("/:search?/:filter?", func(c *fiber.Ctx) error {
 	searchString := c.Params("search")
@@ -21,9 +29,5 @@ func main() {
     return c.SendString("Hello, Hero!")
   })
 
-  app.Get("/:value", func(c *fiber.Ctx) error {
-  return c.SendString("value: " + c.Params("value"))
-  // => Get request with value: hello world
-})
   app.Listen(":3000")
 }
