@@ -1,60 +1,85 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/vukani-dev/improvement-roll-service/config"
-	"github.com/vukani-dev/improvement-roll-service/routes"
 	"fmt"
-	"github.com/joho/godotenv"
-	"log"
+
+	"github.com/gofiber/fiber/v2"
+
+	"os"
+
+	"encoding/json"
+
+	"io/ioutil"
 )
 
+type SharedCategory struct {
+	Category Category `json:"category"`
+	Tags     []string `json:"tags"`
+	Author   string   `json:"author"`
+}
 
-func setupRoutes(app *fiber.App) {
-	// give response when at /
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
-			"message": "You are at the endpoint 😉",
-		})
-	})
+type Category struct {
+	Name          string `json:"name"`
+	TimeSensitive bool   `json:"timeSensitive"`
+	Description   string `json:"description"`
+	Tasks         []Task `json:"tasks"`
+}
 
-	// api group
-	api := app.Group("/api")
-
-	// give response when at /api
-	api.Get("", func(c *fiber.Ctx) error {
-		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": true,
-			"message": "You are at the api endpoint 😉",
-		})
-	})
-
-	// send todos route group to TodoRoutes of routes package
-	routes.CategoryRoute(api.Group("/categories"))
+type Task struct {
+	Name        string `json:"name"`
+	Description string `json:"desc"`
+	Time        int    `json:"time"`
 }
 
 func main() {
-  app := fiber.New()
-	app.Use(logger.New())
-	
-  // Load .env
-  err := godotenv.Load()
+	app := fiber.New()
+	categories := initCategories()
+	app.Get("/", func(c *fiber.Ctx) error {
+		fmt.Println(categories)
+		b, err := json.Marshal(categories)
+		if err != nil {
+			fmt.Println(err)
+		}
 
-	if err != nil {
-		log.Fatal("Error loading .env file")
+		return c.SendString(string(b))
+	})
+
+	app.Listen(":3000")
+}
+
+func initCategories() CategoryMemory {
+	dir := "categories/"
+	items, _ := ioutil.ReadDir(dir)
+	tmp := make([]SharedCategory, 0, len(items))
+
+	for _, item := range items {
+		filePath := dir + item.Name()
+		fmt.Println(filePath)
+		tmp = append(tmp, parseCategory(filePath, item.Name()))
 	}
 
+	return CategoryMemory{Data: tmp}
+}
 
-  app.Get("/:search?/:filter?", func(c *fiber.Ctx) error {
-	searchString := c.Params("search")
-	filterString := c.Params("filter")
-    fmt.Println(searchString)
-    fmt.Println(filterString)
+type CategoryMemory struct {
+	Data []SharedCategory
+}
 
-    return c.SendString("Hello, Hero!")
-  })
+func NewCategoryMemory() CategoryMemory {
+	categories := initCategories()
+	return categories
+}
 
-  app.Listen(":3000")
+func parseCategory(filePath string, categorName string) SharedCategory {
+	jsonFile, err := os.Open("categories/test.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("Successfully Opened test.json")
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var sharedCategory SharedCategory
+	json.Unmarshal(byteValue, &sharedCategory)
+
+	defer jsonFile.Close()
+	return sharedCategory
 }
