@@ -10,12 +10,24 @@ import (
 	"encoding/json"
 
 	"io/ioutil"
+
+	"sort"
+
+	"sync"
+
+	"time"
 )
 
 type SharedCategory struct {
-	Category Category `json:"category"`
-	Tags     []string `json:"tags"`
-	Author   string   `json:"author"`
+	Category Category  `json:"category"`
+	Tags     []string  `json:"tags"`
+	Author   string    `json:"author"`
+	Date     time.Time `json:"date"`
+}
+
+type SharedCategoryMem struct {
+	sync.RWMutex
+	categories []SharedCategory
 }
 
 type Category struct {
@@ -31,12 +43,26 @@ type Task struct {
 	Time        int    `json:"time"`
 }
 
+var mem = &SharedCategoryMem{}
+
+func (m *SharedCategoryMem) Get() []SharedCategory {
+	m.RLock()
+	m.RUnlock()
+	return m.categories
+}
+
+func (m *SharedCategoryMem) Set(categories []SharedCategory) {
+	m.Lock()
+	m.categories = categories
+	m.Unlock()
+}
+
 func main() {
 	app := fiber.New()
-	categories := initCategories()
+	mem.Set(initCategories())
+
 	app.Get("/", func(c *fiber.Ctx) error {
-		fmt.Println(categories)
-		b, err := json.Marshal(categories)
+		b, err := json.Marshal(mem.Get())
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -44,10 +70,25 @@ func main() {
 		return c.SendString(string(b))
 	})
 
+	app.Get("/time", func(c *fiber.Ctx) error {
+		var categories []SharedCategory
+		categories = mem.Get()
+
+		sort.Slice(categories, func(i, j int) bool {
+			return categories[i].Date.After(categories[j].Date)
+		})
+
+		b, err := json.Marshal(mem.Get())
+		if err != nil {
+			fmt.Println(err)
+		}
+		return c.SendString(string(b))
+	})
+
 	app.Listen(":3000")
 }
 
-func initCategories() CategoryMemory {
+func initCategories() []SharedCategory {
 	dir := "categories/"
 	items, _ := ioutil.ReadDir(dir)
 	tmp := make([]SharedCategory, 0, len(items))
@@ -58,24 +99,15 @@ func initCategories() CategoryMemory {
 		tmp = append(tmp, parseCategory(filePath, item.Name()))
 	}
 
-	return CategoryMemory{Data: tmp}
-}
-
-type CategoryMemory struct {
-	Data []SharedCategory
-}
-
-func NewCategoryMemory() CategoryMemory {
-	categories := initCategories()
-	return categories
+	return tmp
 }
 
 func parseCategory(filePath string, categorName string) SharedCategory {
-	jsonFile, err := os.Open("categories/test.json")
+	jsonFile, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("Successfully Opened test.json")
+	fmt.Println("Successfully Opened " + categorName)
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var sharedCategory SharedCategory
 	json.Unmarshal(byteValue, &sharedCategory)
