@@ -59,7 +59,7 @@ func (m *SharedCategoryMem) Set(categories []SharedCategory) {
 
 func main() {
 	app := fiber.New()
-	mem.Set(initCategories())
+	mem.Set(initCategories("categories/"))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		b, err := json.Marshal(mem.Get())
@@ -88,8 +88,7 @@ func main() {
 	app.Listen(":3000")
 }
 
-func initCategories() []SharedCategory {
-	dir := "categories/"
+func initCategories(dir string) []SharedCategory {
 	items, _ := ioutil.ReadDir(dir)
 	tmp := make([]SharedCategory, 0, len(items))
 
