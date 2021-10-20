@@ -45,10 +45,10 @@ type Task struct {
 
 var mem = &SharedCategoryMem{}
 
-func (m *SharedCategoryMem) Get() []SharedCategory {
+func (m *SharedCategoryMem) Get() *SharedCategoryMem {
 	m.RLock()
 	m.RUnlock()
-	return m.categories
+	return m
 }
 
 func (m *SharedCategoryMem) Set(categories []SharedCategory) {
@@ -62,30 +62,41 @@ func main() {
 	mem.Set(initCategories("categories/"))
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		b, err := json.Marshal(mem.Get())
+		var categories SharedCategoryMem
+		categories = *mem.Get()
+		order := c.Query("order")
+		categories.orderCategories(order)
+
+		tags := c.Query("tags")
+		if tags != "" {
+			categories.filterCategoriesByTag(tags)
+		}
+
+		b, err := json.Marshal(categories.categories)
 		if err != nil {
 			fmt.Println(err)
 		}
 
 		return c.SendString(string(b))
 	})
-
-	app.Get("/time", func(c *fiber.Ctx) error {
-		var categories []SharedCategory
-		categories = mem.Get()
-
-		sort.Slice(categories, func(i, j int) bool {
-			return categories[i].Date.After(categories[j].Date)
-		})
-
-		b, err := json.Marshal(mem.Get())
-		if err != nil {
-			fmt.Println(err)
-		}
-		return c.SendString(string(b))
-	})
-
 	app.Listen(":3000")
+}
+
+func (categories *SharedCategoryMem) filterCategoriesByTag(tags string) {
+	fmt.Println(tags)
+}
+
+func (categories *SharedCategoryMem) orderCategories(order string) {
+	sort.Slice(categories.categories, func(i, j int) bool {
+		switch order {
+		case "desc":
+			return categories.categories[i].Date.After(categories.categories[j].Date)
+		case "asc":
+			return categories.categories[i].Date.Before(categories.categories[j].Date)
+		default:
+			return categories.categories[i].Date.After(categories.categories[j].Date)
+		}
+	})
 }
 
 func initCategories(dir string) []SharedCategory {
