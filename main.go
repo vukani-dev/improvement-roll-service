@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 
@@ -47,8 +48,11 @@ var mem = &SharedCategoryMem{}
 
 func (m *SharedCategoryMem) Get() *SharedCategoryMem {
 	m.RLock()
+	valSharedMem := new(SharedCategoryMem)
+	valSharedMem.categories = make([]SharedCategory, len(m.categories))
+	copy(valSharedMem.categories, m.categories)
 	m.RUnlock()
-	return m
+	return valSharedMem
 }
 
 func (m *SharedCategoryMem) Set(categories []SharedCategory) {
@@ -62,8 +66,7 @@ func main() {
 	mem.Set(initCategories("categories/"))
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		var categories SharedCategoryMem
-		categories = *mem.Get()
+		categories := *mem.Get()
 		order := c.Query("order")
 		categories.orderCategories(order)
 
@@ -82,10 +85,6 @@ func main() {
 	app.Listen(":3000")
 }
 
-func (categories *SharedCategoryMem) filterCategoriesByTag(tags string) {
-	fmt.Println(tags)
-}
-
 func (categories *SharedCategoryMem) orderCategories(order string) {
 	sort.Slice(categories.categories, func(i, j int) bool {
 		switch order {
@@ -97,6 +96,36 @@ func (categories *SharedCategoryMem) orderCategories(order string) {
 			return categories.categories[i].Date.After(categories.categories[j].Date)
 		}
 	})
+}
+
+func (categories *SharedCategoryMem) filterCategoriesByTag(tags string) {
+	tagSlice := strings.Split(tags, ",")
+	n := 0
+	for _, category := range categories.categories {
+		tagIncluded := false
+		for _, tag := range tagSlice {
+			tagIncluded = containsTag(category.Tags, tag)
+			if containsTag(category.Tags, tag) {
+				tagIncluded = true
+				break
+			}
+		}
+		if tagIncluded {
+			categories.categories[n] = category
+			n++
+		}
+
+	}
+	categories.categories = categories.categories[:n]
+}
+
+func containsTag(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 func initCategories(dir string) []SharedCategory {
