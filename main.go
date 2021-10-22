@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+
+	"strconv"
+
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -24,6 +27,12 @@ type SharedCategory struct {
 	Tags     []string  `json:"tags"`
 	Author   string    `json:"author"`
 	Date     time.Time `json:"date"`
+}
+
+type SharedCategoryPaged struct {
+	SharedCategories []SharedCategory `json:"sharedCategories"`
+	Page             int              `json:"page"`
+	TotalPages       int              `json:"totalPages"`
 }
 
 type SharedCategoryMem struct {
@@ -86,7 +95,11 @@ func main() {
 			categories.filterCategoriesByAuthor(author)
 		}
 
-		b, err := json.Marshal(categories.categories)
+		pageStr := c.Query("page")
+		page := tryParsePageToInt(pageStr)
+		pagedCategories := categories.getPage(page)
+
+		b, err := json.Marshal(pagedCategories)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -94,6 +107,14 @@ func main() {
 		return c.SendString(string(b))
 	})
 	app.Listen(":3000")
+}
+
+func tryParsePageToInt(str string) int {
+	intVar, err := strconv.Atoi(str)
+	if err != nil {
+		return 1
+	}
+	return intVar
 }
 
 func (categories *SharedCategoryMem) orderCategories(order string) {
@@ -161,6 +182,25 @@ func (categories *SharedCategoryMem) filterCategoriesByAuthor(author string) {
 		}
 	}
 	categories.categories = categories.categories[:n]
+}
+
+func (categories *SharedCategoryMem) getPage(pageNum int) SharedCategoryPaged {
+	pageSize := 10
+	indexStart := pageSize * (pageNum - 1)
+
+	categoriesSize := len(categories.categories)
+
+	categoriesPaged := SharedCategoryPaged{}
+	categoriesPaged.Page = pageNum
+	categoriesPaged.TotalPages = (((categoriesSize - 1) / pageSize) + 1)
+
+	for i := indexStart; len(categoriesPaged.SharedCategories) < 10; i++ {
+		if i >= categoriesSize {
+			break
+		}
+		categoriesPaged.SharedCategories = append(categoriesPaged.SharedCategories, categories.categories[i])
+	}
+	return categoriesPaged
 }
 
 func initCategories(dir string) []SharedCategory {
