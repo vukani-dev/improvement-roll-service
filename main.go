@@ -67,12 +67,23 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		categories := *mem.Get()
+
 		order := c.Query("order")
 		categories.orderCategories(order)
+
+		searchQuery := c.Query("search")
+		if searchQuery != "" {
+			categories.filterCategoriesByName(searchQuery)
+		}
 
 		tags := c.Query("tags")
 		if tags != "" {
 			categories.filterCategoriesByTag(tags)
+		}
+
+		author := c.Query("author")
+		if author != "" {
+			categories.filterCategoriesByAuthor(author)
 		}
 
 		b, err := json.Marshal(categories.categories)
@@ -126,6 +137,30 @@ func containsTag(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func (categories *SharedCategoryMem) filterCategoriesByName(search string) {
+	n := 0
+	for _, category := range categories.categories {
+		lowerName := strings.ToLower(category.Category.Name)
+		if strings.Contains(lowerName, search) {
+			categories.categories[n] = category
+			n++
+		}
+	}
+	categories.categories = categories.categories[:n]
+}
+
+func (categories *SharedCategoryMem) filterCategoriesByAuthor(author string) {
+	n := 0
+	for _, category := range categories.categories {
+		lowerName := strings.ToLower(category.Author)
+		if strings.Contains(lowerName, author) {
+			categories.categories[n] = category
+			n++
+		}
+	}
+	categories.categories = categories.categories[:n]
 }
 
 func initCategories(dir string) []SharedCategory {
