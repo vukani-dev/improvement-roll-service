@@ -50,7 +50,7 @@ type Category struct {
 type Task struct {
 	Name        string `json:"name"`
 	Description string `json:"desc"`
-	Time        int    `json:"time"`
+	Minutes        int    `json:"minutes":`
 }
 
 var mem = &SharedCategoryMem{}
@@ -225,7 +225,6 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var sharedCategory SharedCategory
 	json.Unmarshal(byteValue, &sharedCategory)
-
 	defer jsonFile.Close()
 	return sharedCategory
 }
