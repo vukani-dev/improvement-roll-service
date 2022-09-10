@@ -18,6 +18,13 @@ func TestInitCategories(t *testing.T) {
 		if sharedCategories[i].Category.Tasks[0].Name != "task1" {
 			t.Errorf("Error parsing tasks. Expected taskname of task1 got %q", sharedCategories[i].Category.Tasks[0].Name)
 		}
+
+		if sharedCategories[i].Category.TimeSensitive == true {
+			if(sharedCategories[i].Category.Tasks[0].Minutes != 1){
+				t.Errorf("Error parsing tasks that are time sensitive. Expected 1 got %q", sharedCategories[i].Category.Tasks[0].Minutes)
+			}
+
+		}
 	}
 
 }
