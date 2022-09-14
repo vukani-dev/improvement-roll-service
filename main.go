@@ -153,7 +153,7 @@ func (categories *SharedCategoryMem) filterCategoriesByTag(tags string) {
 
 func containsTag(s []string, e string) bool {
 	for _, a := range s {
-		if a == e {
+		if strings.Contains(a,e) {
 			return true
 		}
 	}
