@@ -1,30 +1,79 @@
 package main
 
-import "testing"
+import (
+	"io/ioutil"
+
+	"testing"
+)
 
 func TestInitCategories(t *testing.T) {
-	sharedCategories := initCategories("test_categories/")
+	sharedCategories := initCategories("categories/")
+	items, _ := ioutil.ReadDir("categories/")
 
-	if len(sharedCategories) != 2 {
-		t.Errorf("Error grabbing categories from dir. Expected 2 got %q", len(sharedCategories))
+	categoryLength := len(sharedCategories);
+	itemLength := len(items);
+
+	// testing to see if parsing is pulling back the same amt of object that are in the dir
+	if categoryLength != itemLength {
+		t.Errorf("Error parsing categories. Expected %v but got %v", itemLength, categoryLength)
+		return
 	}
+	
+	// general checks
 	for i := 0; i < len(sharedCategories); i++ {
-		if sharedCategories[i].Author != "hero" {
-			t.Errorf("Error getting author. Expected hero go %q", sharedCategories[i].Author)
-		}
-		if len(sharedCategories[i].Category.Tasks) != 3 {
-			t.Errorf("Error parsing tasks. Expected 3 got %q", len(sharedCategories[i].Category.Tasks))
-		}
-		if sharedCategories[i].Category.Tasks[0].Name != "task1" {
-			t.Errorf("Error parsing tasks. Expected taskname of task1 got %q", sharedCategories[i].Category.Tasks[0].Name)
+
+		// categories should have a name and description
+		if sharedCategories[i].Category.Name == "" || sharedCategories[i].Category.Description == ""{
+			t.Errorf("Category with filename %q should have a name and description", items[i].Name())	
+			return
 		}
 
-		if sharedCategories[i].Category.TimeSensitive == true {
-			if(sharedCategories[i].Category.Tasks[0].Minutes != 1){
-				t.Errorf("Error parsing tasks that are time sensitive. Expected 1 got %q", sharedCategories[i].Category.Tasks[0].Minutes)
+		// community categories must have at least 5 tasks
+		if len(sharedCategories[i].Category.Tasks) < 5 {
+			// t.Errorf("Category %q must have at least 5 tasks", sharedCategories[i].Category.Name)	
+			// return
+		}
+
+		// sharedCategories must have an author
+		if sharedCategories[i].Author == "" {
+			t.Errorf("Category %q must have an author", sharedCategories[i].Category.Name)	
+			return
+		}
+
+		// sharedCategories must have a date added
+		if sharedCategories[i].Date.IsZero() {
+			t.Errorf("Category %q must have a date in RFC-3339 Format. Go to: %q for help", sharedCategories[i].Category.Name, "https://www.unixtimestamp.com/")	
+			return
+		}
+
+		// sharedCategories must have tags
+		if len(sharedCategories[i].Tags) < 1 {
+			t.Errorf("Category %q must have at least one tag", sharedCategories[i].Category.Name)	
+			return
+		}
+
+		// if a category is time sensiitive it needs to have minutes in the tasks
+		if sharedCategories[i].Category.TimeSensitive {
+			for _, task := range sharedCategories[i].Category.Tasks {
+				if task.Minutes < 1 {
+					t.Errorf("Category %q is set to be time sensitive yet one of its tasks doesnt have time or the time is set to 0", sharedCategories[i].Category.Name)	
+					return
+				}
 			}
-
 		}
 	}
 
+	// making sure no categories have the same name
+	for i := 0; i < len(sharedCategories); i++ {
+		matches := 0
+		for j := 0; j < len(sharedCategories); j++ {
+			if sharedCategories[i].Category.Name == sharedCategories[j].Category.Name {
+				matches = matches + 1
+				if matches > 1 {
+					t.Errorf("There are two categories with the same name: %q", sharedCategories[i].Category.Name)	
+					return
+				}
+			}
+		}
+	}
 }

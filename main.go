@@ -221,7 +221,6 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("Successfully Opened " + categorName)
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	var sharedCategory SharedCategory
 	json.Unmarshal(byteValue, &sharedCategory)
