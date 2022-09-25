@@ -55,5 +55,25 @@ All parameters are optional, and can ofcourse be combined
 - **author** = only return categories whos author contains the param
 
 ## Hosting
+
+### CI/CD
 This repository is connected to a build pipeline that hosts the service being used in the app. 
 Any changes to main will be reflected in production.
+
+
+### Running the app locally
+
+*Developed with go 1.18.1
+
+- Clone the repo
+- In the root directory run `go run main.go`
+    - The service with be hosted on `localhost:3000`
+
+### Running the app Docker
+
+- Clone the repo
+- `docker build -t imp .`
+- `docker run --name imp --publish 3000:3000 -it imp:latest`
+    - you should be in the container now
+- `./bin/server`
+    - The service with be hosted on `localhost:3000`
