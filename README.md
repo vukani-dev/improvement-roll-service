@@ -47,12 +47,12 @@ Task:
 Every response will be pages by 10 records. So in order to get the next few simply increment the `page` query parameter
 
 ##### GET /?page={x}&search={y}&tags={z}&author={p}
-All parameters are optional, and can ofcourse be combined
+All parameters are optional, and can of course be combined
 
 - **page** = The page of results you want
-- **search** = only return categories whos name contains the param
+- **search** = only return categories who's name contains the param
 - **tags** = only return categories who have a tag that contains the param. This can also be comma delimited
-- **author** = only return categories whos author contains the param
+- **author** = only return categories who's author contains the param
 
 ## Hosting
 
@@ -66,7 +66,7 @@ Any changes to main will be reflected in production.
 *Developed with go 1.18.1
 
 - Clone the repo
-- In the root directory run `go run main.go`
+- In the root directory, run `go run main.go`
     - The service with be hosted on `localhost:3000`
 
 ### Running the app Docker
