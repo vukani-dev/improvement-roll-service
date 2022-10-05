@@ -20,13 +20,17 @@ import (
 	"sync"
 
 	"time"
+
+	"path/filepath"
+
+	"github.com/pelletier/go-toml"
 )
 
 type SharedCategory struct {
-	Category Category  `json:"category"`
-	Tags     []string  `json:"tags"`
-	Author   string    `json:"author"`
-	Date     time.Time `json:"date"`
+	Category Category  `json:"category" toml:"category"`
+	Tags     []string  `json:"tags" toml:"tags"`
+	Author   string    `json:"author" toml:"author"`
+	Date     time.Time `json:"date" toml:"date"`
 }
 
 type SharedCategoryPaged struct {
@@ -41,16 +45,16 @@ type SharedCategoryMem struct {
 }
 
 type Category struct {
-	Name          string `json:"name"`
-	TimeSensitive bool   `json:"timeSensitive"`
-	Description   string `json:"description"`
-	Tasks         []Task `json:"tasks"`
+	Name          string `json:"name" toml:"name"`
+	TimeSensitive bool   `json:"timeSensitive" toml:"time_sensitive"`
+	Description   string `json:"description" toml:"description"`
+	Tasks         []Task `json:"tasks" toml:"tasks"`
 }
 
 type Task struct {
-	Name        string `json:"name"`
-	Description string `json:"desc"`
-	Minutes        int    `json:"minutes":`
+	Name        string `json:"name" toml:"name"`
+	Description string `json:"desc" toml:"desc"`
+	Minutes        int `json:"minutes" toml:"minutes"`
 }
 
 var mem = &SharedCategoryMem{}
@@ -217,6 +221,18 @@ func initCategories(dir string) []SharedCategory {
 }
 
 func parseCategory(filePath string, categorName string) SharedCategory {
+	fileExtension := filepath.Ext(filePath)
+	if fileExtension == ".toml"{
+		tomlFile, err := toml.LoadFile(filePath)
+		if err != nil {
+			fmt.Println(err)
+			return SharedCategory{}
+		}
+		byteValue, _ := toml.Marshal(tomlFile)
+		var sharedCategory SharedCategory
+		toml.Unmarshal(byteValue, &sharedCategory)
+		return sharedCategory
+	}
 	jsonFile, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println(err)
