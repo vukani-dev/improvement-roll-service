@@ -24,13 +24,15 @@ import (
 	"path/filepath"
 
 	"github.com/pelletier/go-toml"
+
+	"gopkg.in/yaml.v3"
 )
 
 type SharedCategory struct {
-	Category Category  `json:"category" toml:"category"`
-	Tags     []string  `json:"tags" toml:"tags"`
-	Author   string    `json:"author" toml:"author"`
-	Date     time.Time `json:"date" toml:"date"`
+	Category Category  `json:"category" toml:"category" yaml:"category"`
+	Tags     []string  `json:"tags" toml:"tags" yaml:"tags"`
+	Author   string    `json:"author" toml:"author" yaml:"author"`
+	Date     time.Time `json:"date" toml:"date" yaml:"date"`
 }
 
 type SharedCategoryPaged struct {
@@ -45,16 +47,16 @@ type SharedCategoryMem struct {
 }
 
 type Category struct {
-	Name          string `json:"name" toml:"name"`
-	TimeSensitive bool   `json:"timeSensitive" toml:"time_sensitive"`
-	Description   string `json:"description" toml:"description"`
-	Tasks         []Task `json:"tasks" toml:"tasks"`
+	Name          string `json:"name" toml:"name" yaml:"name"`
+	TimeSensitive bool   `json:"timeSensitive" toml:"time_sensitive" yaml:"timeSensitive"`
+	Description   string `json:"description" toml:"description" yaml:"description"`
+	Tasks         []Task `json:"tasks" toml:"tasks" yaml:"tasks"`
 }
 
 type Task struct {
-	Name        string `json:"name" toml:"name"`
-	Description string `json:"desc" toml:"desc"`
-	Minutes        int `json:"minutes" toml:"minutes"`
+	Name        string `json:"name" toml:"name" toml:"name"`
+	Description string `json:"desc" toml:"desc" toml:"desc"`
+	Minutes        int `json:"minutes" toml:"minutes" toml:"minutes"`
 }
 
 var mem = &SharedCategoryMem{}
@@ -231,6 +233,16 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 		byteValue, _ := toml.Marshal(tomlFile)
 		var sharedCategory SharedCategory
 		toml.Unmarshal(byteValue, &sharedCategory)
+		return sharedCategory
+	}
+	if fileExtension == ".yaml"{
+		yamlFile, err := ioutil.ReadFile(filePath)
+		if err != nil {
+			fmt.Println(err)
+			return SharedCategory{}
+		}
+		var sharedCategory SharedCategory
+		yaml.Unmarshal(yamlFile, &sharedCategory)
 		return sharedCategory
 	}
 	jsonFile, err := os.Open(filePath)
