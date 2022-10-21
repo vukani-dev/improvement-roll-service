@@ -241,9 +241,8 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 			fmt.Println(err)
 			return SharedCategory{}
 		}
-		byteValue, _ := yaml.Marshal(yamlFile)
 		var sharedCategory SharedCategory
-		yaml.Unmarshal(byteValue, &sharedCategory)
+		yaml.Unmarshal(yamlFile, &sharedCategory)
 		return sharedCategory
 	}
 	jsonFile, err := os.Open(filePath)
