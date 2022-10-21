@@ -231,6 +231,10 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 			return SharedCategory{}
 		}
 		byteValue, _ := toml.Marshal(tomlFile)
+		var sharedCategoriesMap map[string]any
+		toml.Unmarshal(byteValue, &sharedCategoriesMap)
+		sharedCategoriesMap["date"], _ = time.Parse("01-02-2006", sharedCategoriesMap["date"].(string))
+		byteValue, _ = toml.Marshal(sharedCategoriesMap)
 		var sharedCategory SharedCategory
 		toml.Unmarshal(byteValue, &sharedCategory)
 		return sharedCategory
@@ -250,6 +254,10 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 		fmt.Println(err)
 	}
 	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var sharedCategoriesMap map[string]any
+	json.Unmarshal(byteValue, &sharedCategoriesMap)
+	sharedCategoriesMap["date"], _ = time.Parse("01-02-2006", sharedCategoriesMap["date"].(string))
+	byteValue, _ = json.Marshal(sharedCategoriesMap)
 	var sharedCategory SharedCategory
 	json.Unmarshal(byteValue, &sharedCategory)
 	defer jsonFile.Close()
