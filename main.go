@@ -54,9 +54,9 @@ type Category struct {
 }
 
 type Task struct {
-	Name        string `json:"name" toml:"name" toml:"name"`
-	Description string `json:"desc" toml:"desc" toml:"desc"`
-	Minutes        int `json:"minutes" toml:"minutes" toml:"minutes"`
+	Name        string `json:"name" toml:"name" yaml:"name"`
+	Description string `json:"desc" toml:"desc" yaml:"desc"`
+	Minutes        int `json:"minutes" toml:"minutes" yaml:"minutes"`
 }
 
 var mem = &SharedCategoryMem{}
@@ -222,6 +222,7 @@ func initCategories(dir string) []SharedCategory {
 	return tmp
 }
 
+
 func parseCategory(filePath string, categorName string) SharedCategory {
 	fileExtension := filepath.Ext(filePath)
 	if fileExtension == ".toml"{
@@ -240,13 +241,18 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 		return sharedCategory
 	}
 	if fileExtension == ".yaml"{
-		yamlFile, err := ioutil.ReadFile(filePath)
+		yamlFile, err := os.Open(filePath)
+		byteValue, _ := ioutil.ReadAll(yamlFile)
 		if err != nil {
 			fmt.Println(err)
 			return SharedCategory{}
 		}
+		var sharedCategoriesMap map[string]any
+		yaml.Unmarshal(byteValue, &sharedCategoriesMap)
+		sharedCategoriesMap["date"], _ = time.Parse("01-02-2006", sharedCategoriesMap["date"].(string))
+		byteValue, _ = yaml.Marshal(sharedCategoriesMap)
 		var sharedCategory SharedCategory
-		yaml.Unmarshal(yamlFile, &sharedCategory)
+		yaml.Unmarshal(byteValue, &sharedCategory)
 		return sharedCategory
 	}
 	jsonFile, err := os.Open(filePath)

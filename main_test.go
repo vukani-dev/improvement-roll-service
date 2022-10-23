@@ -42,7 +42,7 @@ func TestInitCategories(t *testing.T) {
 
 		// sharedCategories must have a date added
 		if sharedCategories[i].Date.IsZero() {
-			t.Errorf("Category %q must have a date in RFC-3339 Format. Go to: %q for help", sharedCategories[i].Category.Name, "https://www.unixtimestamp.com/")	
+			t.Errorf("Category %q must have a date in MM-DD-YYYY Format. Go to: %q for help", sharedCategories[i].Category.Name, "https://www.unixtimestamp.com/")	
 			return
 		}
 

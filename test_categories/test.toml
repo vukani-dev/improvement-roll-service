@@ -1,9 +1,9 @@
 tags = [ "physical", "creative", "organizational", "general" ]
 author = "vukani"
-date = "2022-09-24T16:29:00+00:00"
+date = "09-24-2022"
 
 [category]
-name = "General"
+name = "GeneralTOML"
 timeSensitive = true
 description = "A mix of physical, creative, organizational and social tasks"
 

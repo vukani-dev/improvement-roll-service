@@ -24,7 +24,7 @@ SharedCategory:
     "category" : {Category},
     "tags" : [string],
     "author" : string,
-    "date": string of datetime in RFC-3339 format
+    "date": string of datetime in MM-DD-YYYY format
 }
 
 Category:
