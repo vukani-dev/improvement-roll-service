@@ -1,0 +1,37 @@
+{
+    "category": {
+        "name": "Writing Exercises",
+        "timeSensitive": true,
+        "description": "A collection of writing exercises and activities to help aspiring writers hone their skills and get their creative juices flowing.",
+        "tasks": [
+            {
+                "name": "Freewriting",
+                "desc": "Set a timer for 10 minutes and write continuously without stopping or editing your work. This will help to improve your writing fluency and tap into your subconscious thoughts.",
+                "minutes": 10
+            },
+            {
+                "name": "Character Development",
+                "desc": "Create a detailed character profile, including their name, age, appearance, background, personality traits, and goals. This will help you to develop well-rounded characters for your stories.",
+                "minutes": 20
+            },
+            {
+                "name": "Dialogue Practice",
+                "desc": "Write a conversation between two characters, focusing on making their dialogue sound natural and distinct. This will help you to improve your dialogue writing skills.",
+                "minutes": 15
+            },
+            {
+                "name": "Setting Description",
+                "desc": "Choose a location and write a detailed description of it, focusing on using sensory language to bring the setting to life. This will help you to create immersive settings for your stories.",
+                "minutes": 20
+            },
+            {
+                "name": "Flash Fiction",
+                "desc": "Write a complete story in 500 words or less, focusing on a single idea or moment. This will help you to practice concise storytelling and develop your narrative skills.",
+                "minutes": 30
+            }
+        ]
+    },
+    "tags": ["writing", "creativity", "skills", "exercises"],
+    "author": "gpt4",
+    "date": "05-02-2023"
+}

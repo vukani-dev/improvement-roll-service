@@ -1,0 +1,32 @@
+{
+    "category": {
+        "name": "New Hobbies to Explore",
+        "timeSensitive": false,
+        "description": "A collection of hobbies to explore at your own pace, without time constraints. Discover new interests and find activities that bring you joy.",
+        "tasks": [
+            {
+                "name": "Photography",
+                "desc": "Learn the basics of photography, such as composition, lighting, and camera settings. Capture the beauty around you and create lasting memories."
+            },
+            {
+                "name": "Gardening",
+                "desc": "Discover the joys of gardening by planting flowers, vegetables, or herbs. Learn about soil, watering, and proper plant care to create a thriving garden."
+            },
+            {
+                "name": "Cooking",
+                "desc": "Expand your culinary skills by learning new recipes and techniques. Experiment with different cuisines and create delicious meals for yourself and others."
+            },
+            {
+                "name": "Drawing",
+                "desc": "Develop your artistic skills by learning to draw. Start with basic shapes and shading techniques before moving on to more complex subjects and styles."
+            },
+            {
+                "name": "Playing a musical instrument",
+                "desc": "Choose a musical instrument that interests you and learn how to play it. Develop your musical skills and enjoy the process of creating beautiful melodies."
+            }
+        ]
+    },
+    "tags": ["hobbies", "interests", "learning", "discovery"],
+    "author": "gpt4",
+    "date": "05-02-2023"
+}

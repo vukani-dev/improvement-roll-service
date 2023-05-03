@@ -1,30 +1,19 @@
 package main
 
 import (
-	"fmt"
-
-	"strconv"
-
-	"strings"
-
-	"github.com/gofiber/fiber/v2"
-
-	"os"
-
 	"encoding/json"
-
+	"fmt"
 	"io/ioutil"
-
+	"os"
+	"path/filepath"
 	"sort"
-
+	"strconv"
+	"strings"
 	"sync"
-
 	"time"
 
-	"path/filepath"
-
+	"github.com/gofiber/fiber/v2"
 	"github.com/pelletier/go-toml"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -56,7 +45,7 @@ type Category struct {
 type Task struct {
 	Name        string `json:"name" toml:"name" yaml:"name"`
 	Description string `json:"desc" toml:"desc" yaml:"desc"`
-	Minutes        int `json:"minutes" toml:"minutes" yaml:"minutes"`
+	Minutes     int    `json:"minutes" toml:"minutes" yaml:"minutes"`
 }
 
 var mem = &SharedCategoryMem{}
@@ -159,7 +148,7 @@ func (categories *SharedCategoryMem) filterCategoriesByTag(tags string) {
 
 func containsTag(s []string, e string) bool {
 	for _, a := range s {
-		if strings.Contains(a,e) {
+		if strings.Contains(a, e) {
 			return true
 		}
 	}
@@ -222,10 +211,9 @@ func initCategories(dir string) []SharedCategory {
 	return tmp
 }
 
-
 func parseCategory(filePath string, categorName string) SharedCategory {
 	fileExtension := filepath.Ext(filePath)
-	if fileExtension == ".toml"{
+	if fileExtension == ".toml" {
 		tomlFile, err := toml.LoadFile(filePath)
 		if err != nil {
 			fmt.Println(err)
@@ -240,7 +228,7 @@ func parseCategory(filePath string, categorName string) SharedCategory {
 		toml.Unmarshal(byteValue, &sharedCategory)
 		return sharedCategory
 	}
-	if fileExtension == ".yaml"{
+	if fileExtension == ".yaml" {
 		yamlFile, err := os.Open(filePath)
 		byteValue, _ := ioutil.ReadAll(yamlFile)
 		if err != nil {
